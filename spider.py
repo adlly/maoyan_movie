@@ -1,6 +1,5 @@
 #-*-coding:UTF-8 -*-
-
-
+import json
 import re
 import requests
 import sys
@@ -27,22 +26,44 @@ def parse_one_page(ss):
 
     try:
         items = re.findall(pattern, ss)
-        for i in items:
-            a = ''.join(i).encode('utf-8')
-            print a
+        # for i in items:
+        #     a = ''.join(i).encode('utf-8')
+        #     print a
+        #     write_to_file(a)
+        for i in  items:
+            yield{
+                'index': i[0],
+                'image': i[1],
+                'title': i[2],
+                'actor': i[3].strip()[3:],
+                'time': i[4].strip()[5:],
+                'score': i[5] + i[6]
+            }
+
+
+
     except Exception,e:
         print e.message
 
+def write_to_file(content):
+    with open('initial.text', 'a') as f:
+        f.write(json.dumps(content, ensure_ascii=False) + '\n')
+        f.close
 
 
-def main():
-    url = 'http://maoyan.com/board/4?'
+def main(offset):
+    url = 'http://maoyan.com/board/4?offset='+ str(offset)
     html = get_url_page(url)
-    print html
-    text = open('./initial.html', 'w+')
-    text.write(html)
-    text.close()
-    parse_one_page(html)
+    #print html
+    # text = open('./initial.html', 'w+')
+    # text.write(html)
+    # text.close()
+    for item in parse_one_page(html):
+        print item
+        write_to_file(item)
+
+
 
 if __name__ == '__main__':
-    main()
+    for i in range(10):
+        main(i * 10)
