@@ -1,6 +1,8 @@
 #-*-coding:UTF-8 -*-
 import json
 import re
+from multiprocessing import Pool
+
 import requests
 import sys
 from requests import  RequestException
@@ -65,5 +67,7 @@ def main(offset):
 
 
 if __name__ == '__main__':
-    for i in range(10):
-        main(i * 10)
+    pool = Pool()
+    pool.map(main, [i*10 for i in range(10)])
+    # for i in range(10):
+    #     main(i * 10)
