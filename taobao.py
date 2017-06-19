@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pyquery import PyQuery as pq
+#from selenium.webdriver import phantomjs
+from config import *
 
 import sys
 reload(sys)
@@ -17,11 +19,14 @@ sys.setdefaultencoding('utf8')
 
 
 
-browser = webdriver.Chrome()
+#browser = webdriver.Chrome()
+browser = webdriver.PhantomJS(service_args=SERVICE_ARGS)
+browser.set_window_size(1400, 900)
 wait = WebDriverWait(browser, 100)
 
 def search():
     try:
+        print('正在搜索....')
         browser.get('http://www.taobao.com')
         # input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#q')))
         # input 与系统函数 input() 同名 可能发生错误
@@ -41,6 +46,7 @@ def search():
 
 def next_page(page_number):
     try:
+        print('正在翻页'+ str(page_number))
         input_box = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > div.form > input')))
         # submit = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#mainsrp-pager > div > div > div > div.form > span.btn.J_Submit')))
         submit = browser.find_element_by_css_selector('#mainsrp-pager > div > div > div > div.form > span.btn.J_Submit')
@@ -60,10 +66,11 @@ def get_products():
 
     for item in items:
         product = {
-            'image': item.find('.pic .img').attr('.src'),
+            'image': item.find('.pic .img').attr('src'),
             'price': item.find('.price').text(),
             'deal': item.find('.deal-cnt').text()[:-3],
             'title': item.find('.title').text(),
+            'url': item.find('.title .a').attr('href'),
             'shop': item.find('.shop').text(),
             'location': item.find('.location').text()
         }
@@ -81,7 +88,7 @@ def get_products():
         #print product
         type(json.dumps(product))
         print json.dumps(product)
-        file.write(json.dumps(product).decode('unicode_escape'))
+        file.write(json.dumps(product).decode('unicode_escape')+'\n')
 
 file = open('information.txt', 'w+')
 def main():
@@ -95,6 +102,7 @@ def main():
     for i in range(2, numbers + 1):
         next_page(i)
     file.close()
+    browser.close()
 
 
 if __name__ == '__main__':
