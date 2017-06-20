@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pyquery import PyQuery as pq
 #from selenium.webdriver import phantomjs
 from config import *
+import pymongo
 
 import sys
 reload(sys)
@@ -16,8 +17,8 @@ sys.setdefaultencoding('utf8')
 ## 比如下面 就没有这个包; 怎么办  alter+enter 直接安装就行 但是你要知道 他后台条用的也是 pip install 就行
 ## 这样是不是比较好
 
-
-
+client = pymongo.MongoClient(MONGO_URL)
+db = client[MONGO_DB]
 
 #browser = webdriver.Chrome()
 browser = webdriver.PhantomJS(service_args=SERVICE_ARGS)
@@ -87,10 +88,20 @@ def get_products():
         #
         #print product
         type(json.dumps(product))
-        print json.dumps(product)
+        #print json.dumps(product)
         file.write(json.dumps(product).decode('unicode_escape')+'\n')
+        save_to_mongo(json.dumps(product))
 
 file = open('information.txt', 'w+')
+
+def save_to_mongo(result):
+    try:
+        if db[MONGO_TABLE].insert(result):
+            print "插入数据成功"+result
+    except:
+        print "插入数据失败"+result
+
+
 def main():
     # file在本函数中的变量, 智能在本函数中使用
     # 1. 要么传参给下级函数用
