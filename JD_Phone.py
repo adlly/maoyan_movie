@@ -16,6 +16,8 @@ browser = webdriver.Chrome()
 #browser = webdriver.PhantomJS(service_args=SERVICE_ARGS)
 wait = WebDriverWait(browser, 200)
 
+redis_redis = redis.Redis(host='127.0.0.1', port=6379)
+
 
 def search_url(url):
     browser.get(url)
@@ -35,7 +37,7 @@ def search_url(url):
     # get_urls()
 
 def save_to_redis(urls):
-
+    redis_redis.lpush('ItemUrls', urls)
 
 
 def get_urls():
@@ -52,6 +54,7 @@ def get_urls():
     items = re.findall(second_pattern, first_content[0])
     for i in items:
         print i + '\n'
+        save_to_redis(i)
 
 #https://ccc-x.jd.com/dsp/nc?ext=aHR0cHM6Ly9pdGVtLmpkLmNvbS8xMDk0MTAzNzQ4MC5odG1s&log=oiGfZupKTra0gVhJB0u9oPzw7mN-MMw1xMRjmnNEUTWnVHSpv5_FSBwGxRfA7Ma_0bm-riF9JgGeODpqqtEdiDYu1IvseDKBEablfck3jh2pvW7qYc1d4UFxQ5szKj3_3Kov43Rr45Qj9VygDjjKUy-AfJjxYFU4LdmNGo0S7RFK8-3BEulK4YzpFzJEVSgQpr9dJTnxEYMVHSYytaoVjld0Nf-nFKWRqI6mMM4i6RxKbCUr0C_yxq4IqVm5AMbcSJHcoPOJ3hZj_65JQWKYQ_0YK_jFpe9Vw9bN4SlHaoEYKZ9qPzW0nOTQ388EJO0w1ONWY9-S4e06f_AiboaJnm1_YOObCE7AGuYHonj4KhDxF-Uy0zMIp_ja_0bd3oXE1QjG-OBSGYEfWqw3eWS6GzRYWoUtwuEw7E6odumgqZ0&v=404
 
